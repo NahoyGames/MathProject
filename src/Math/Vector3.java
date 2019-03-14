@@ -1,3 +1,5 @@
+package Math;
+
 /**
  *
  * A 3-Dimensional Vector
@@ -22,6 +24,16 @@ public class Vector3
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Vector3(Matrix m)
+    {
+        if (m.columnCount() != 1 || m.rowCount() != 4) { throw new IllegalArgumentException("Invalid Matrix format"); }
+
+        this.x = m.getEntry(0, 0) / m .getEntry(3, 0);
+        this.y = m.getEntry(1, 0) / m .getEntry(3, 0);
+        this.z = m.getEntry(2, 0) / m .getEntry(3, 0);
+
     }
 
     public Vector3()
@@ -122,6 +134,14 @@ public class Vector3
         return new Vector3[] { v1, v2 };
     }
 
+    // Converts this Vector to a homogeneous Matrix in the form:
+    // | x |
+    // | y |
+    // | z |
+    // | w |
+    public Matrix toMatrix() { return new Matrix(new double[][] {{this.x}, {this.y}, {this.z}, {1}}); }
+
+
     //endregion
 
     /** Technical Stuff :: Makes the program not suck **/
@@ -131,6 +151,8 @@ public class Vector3
     {
         return new Vector3(this.x, this.y, this.z);
     }
+
+    public String toString() { return "<" + this.x + ", " + this.y + ", " + this.z + ">"; }
 
     //endregion
 
