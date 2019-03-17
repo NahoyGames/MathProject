@@ -9,7 +9,7 @@ public class ParsingTester
     {
         long t = System.currentTimeMillis();
 
-        System.out.println((new Mesh("src/Resources/xwing.obj")));
+        System.out.println(Mesh.parseObj("src/Resources/xwing.obj"));
 
         long delta = System.currentTimeMillis() - t;
 

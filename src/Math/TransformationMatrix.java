@@ -34,15 +34,22 @@ public class TransformationMatrix extends Matrix
         Matrix yRot = new Matrix(new double[][] {{ yCos, 0, -ySin, 0 }, { 0, 1, 0, 0 }, { ySin, 0, yCos, 0 }, { 0, 0, 0, 1 }});
         Matrix zRot = new Matrix(new double[][] {{ zCos, zSin, 0, 0 }, { -zSin, zCos,0 ,0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 }});
 
-        entries = multiply(this, multiply(xRot, multiply(yRot, zRot))).entries;
+        entries = multiply(multiply(xRot, multiply(yRot, zRot)), this).entries;
     }
 
 
+    /**
+     * Adds a translation to the stack
+     * Translation is stored in  the rightmost column
+     * @param x
+     * @param y
+     * @param z
+     */
     public void addTranslation(double x, double y, double z)
     {
         Matrix trans = new Matrix(new double[][] {{ 1, 0, 0, x }, { 0, 1, 0, y}, { 0, 0, 1, z }, { 0, 0 ,0, 1 }});
 
-        entries = multiply(this, trans).entries;
+        entries = multiply(trans, this).entries;
     }
 
 

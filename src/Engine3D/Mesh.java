@@ -20,7 +20,16 @@ public class Mesh
 
     private String srcFile;
 
-    private MeshObject[] objects;
+    private String name;
+
+    // An array of position vectors representing the mesh's vertices, in **local space**
+    private Vector3[] vertices;
+
+    // Stores the indices of the vertices that make up a triangular face on a mesh
+    private int[] faces;
+
+    // Indicates in which direction each vector is facing
+    private Vector3[] vNormals;
 
     //endregion
 
@@ -29,10 +38,13 @@ public class Mesh
     //region
 
     // Generates the mesh from a .obj file
-    public Mesh(String objFile)
+    public Mesh(String objFile, String name, Vector3[] vertices, int[] faces, Vector3[] vertexNormals)
     {
         this.srcFile = objFile;
-        this.objects = parseObj(objFile);
+        this.name = name;
+        this.vertices = vertices;
+        this.faces = faces;
+        this.vNormals = vertexNormals;
     }
 
     //endregion
@@ -41,9 +53,34 @@ public class Mesh
     /** Getters & Setters :: Lets us access & modify data **/
     //region
 
-    public MeshObject[] getObjects()
+    public void setVertices(Vector3[] vertices)
     {
-        return objects;
+        this.vertices = vertices;
+    }
+
+    public Vector3[] getVertices()
+    {
+        return vertices;
+    }
+
+    public int[] getFaces()
+    {
+        return faces;
+    }
+
+    public Vector3[] getVertexNormals()
+    {
+        return vNormals;
+    }
+
+    public void setFaces(int[] faces)
+    {
+        this.faces = faces;
+    }
+
+    public void setVertexNormals(Vector3[] vNormals)
+    {
+        this.vNormals = vNormals;
     }
 
     //endregion
@@ -55,9 +92,9 @@ public class Mesh
     // Parses a .obj file. I won't explain how this works too much in depth, but if you
     // right click --> "open with text edit" an .obj file, you might get a glimpse of what
     // this code is doing.
-    private MeshObject[] parseObj(String src)
+    public static Mesh[] parseObj(String src)
     {
-        List<MeshObject> objects = new ArrayList<>();
+        List<Mesh> meshes = new ArrayList<>();
 
         List<Vector3> currentVertices = new ArrayList<>();
         List<Integer> currentFaces = new ArrayList<>();
@@ -84,16 +121,16 @@ public class Mesh
                     case "o": // Mesh Object
                         try
                         {
-                            MeshObject lastObj = objects.get(objects.size() - 1);
+                            Mesh lastMesh = meshes.get(meshes.size() - 1);
 
-                            lastObj.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
-                            lastObj.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
+                            lastMesh.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
+                            lastMesh.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
                             int[] temp = new int[currentFaces.size()];
                             for (int i = 0; i < temp.length; i++)
                             {
                                 temp[i] = currentFaces.get(i);
                             }
-                            lastObj.setFaces(temp);
+                            lastMesh.setFaces(temp);
 
                             currentFaces.clear();
                             currentNormals.clear();
@@ -101,7 +138,7 @@ public class Mesh
                         }
                         catch (IndexOutOfBoundsException e) { }
 
-                        objects.add(new MeshObject(this, args[1], null, null, null));
+                        meshes.add(new Mesh(src, args[1], null, null, null));
                         break;
 
                     case "f": // Face
@@ -130,16 +167,16 @@ public class Mesh
                 }
             }
 
-            MeshObject lastObj = objects.get(objects.size() - 1);
+            Mesh lastMesh = meshes.get(meshes.size() - 1);
 
-            lastObj.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
-            lastObj.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
+            lastMesh.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
+            lastMesh.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
             int[] temp = new int[currentFaces.size()];
             for (int i = 0; i < temp.length; i++)
             {
                 temp[i] = currentFaces.get(i);
             }
-            lastObj.setFaces(temp);
+            lastMesh.setFaces(temp);
 
             currentFaces.clear();
             currentNormals.clear();
@@ -152,7 +189,7 @@ public class Mesh
             e.printStackTrace();
         }
 
-        return objects.toArray(new MeshObject[objects.size()]);
+        return meshes.toArray(new Mesh[meshes.size()]);
 
     }
 
@@ -164,7 +201,9 @@ public class Mesh
 
     public String toString()
     {
-        return Arrays.toString(this.objects);
+        return "\n\n\"" + name + "\" ::: \nVertices : \n" + Arrays.toString(vertices) +
+                "\n Vertex Normals : \n" + Arrays.toString(vNormals) +
+                "\n Faces : \n" + Arrays.toString(faces);
     }
 
     //endregion
