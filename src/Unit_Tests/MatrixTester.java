@@ -2,6 +2,8 @@ package Unit_Tests;
 
 import Math.*;
 
+import java.util.Arrays;
+
 public class MatrixTester
 {
 
@@ -10,11 +12,13 @@ public class MatrixTester
         System.out.println(Matrix.identity(3));
 
 
-        Matrix m1 = Matrix.identity(4);
-        m1.setEntry(0, 0, 2);
-        Matrix m2 = (new Vector3(2, 3, 1)).toMatrix();
+        Matrix m1 = new Matrix(new double[][] {{ Math.cos(Math.PI/3), -Math.sin(Math.PI/3)},
+                                                {Math.sin(Math.PI/3), Math.cos(Math.PI/3)},
+        });
+        Matrix m2 = new Matrix(new double[][] {{5}, {2}});
         System.out.println(m1 + " * \n" + m2);
-        System.out.println(new Vector3(Matrix.multiply(m1, m2)));
+        System.out.println(Matrix.multiply(m1, m2));
+
     }
 
 }

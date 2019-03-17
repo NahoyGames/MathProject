@@ -54,6 +54,10 @@ public class Matrix
     // Sets the entry at the given index
     public void setEntry(int row, int column, double value) { entries[row][column] = value; }
 
+    public double[][] getEntries()
+    {
+        return entries;
+    }
 
     //endregion
 
