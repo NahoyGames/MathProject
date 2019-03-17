@@ -38,6 +38,17 @@ public class Mesh
     //endregion
 
 
+    /** Getters & Setters :: Lets us access & modify data **/
+    //region
+
+    public MeshObject[] getObjects()
+    {
+        return objects;
+    }
+
+    //endregion
+
+
     /** Parsers :: Parses standard 3D Model formats to the one used for this program **/
     //region
 
@@ -146,6 +157,7 @@ public class Mesh
     }
 
     //endregion
+
 
     /** Technical Stuff :: Makes the program not suck **/
     //region

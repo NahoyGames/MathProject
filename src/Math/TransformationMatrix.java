@@ -3,6 +3,8 @@ package Math;
 /***
  * An extension of the Matrix class which allows to 'stack'
  * pre-defined transformations on top of each other
+ *
+ * Uses homogeneous coordinates
  */
 public class TransformationMatrix extends Matrix
 {
@@ -10,6 +12,7 @@ public class TransformationMatrix extends Matrix
     public TransformationMatrix()
     {
         super(4, 4);
+        entries = Matrix.identity(4).entries;
     }
 
 
@@ -31,7 +34,17 @@ public class TransformationMatrix extends Matrix
         Matrix yRot = new Matrix(new double[][] {{ yCos, 0, -ySin, 0 }, { 0, 1, 0, 0 }, { ySin, 0, yCos, 0 }, { 0, 0, 0, 1 }});
         Matrix zRot = new Matrix(new double[][] {{ zCos, zSin, 0, 0 }, { -zSin, zCos,0 ,0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 }});
 
-        entries = multiply(xRot, multiply(yRot, zRot)).entries;
+        entries = multiply(this, multiply(xRot, multiply(yRot, zRot))).entries;
     }
+
+
+    public void addTranslation(double x, double y, double z)
+    {
+        Matrix trans = new Matrix(new double[][] {{ 1, 0, 0, x }, { 0, 1, 0, y}, { 0, 0, 1, z }, { 0, 0 ,0, 1 }});
+
+        entries = multiply(this, trans).entries;
+    }
+
+
 
 }

@@ -52,6 +52,21 @@ public class MeshObject
         this.vertices = vertices;
     }
 
+    public Vector3[] getVertices()
+    {
+        return vertices;
+    }
+
+    public int[] getFaces()
+    {
+        return faces;
+    }
+
+    public Vector3[] getVertexNormals()
+    {
+        return vNormals;
+    }
+
     public void setFaces(int[] faces)
     {
         this.faces = faces;
