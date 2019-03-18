@@ -23,7 +23,7 @@ public class Main
 
         window.setVisible(true);
 
-        Mesh[] meshes = Mesh.parseObj("src/Resources/monkey.obj");
+        Mesh[] meshes = Mesh.parseObj("src/Resources/arrows.obj");
 
         while (true)
         {

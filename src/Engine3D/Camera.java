@@ -40,7 +40,7 @@ public class Camera extends JPanel
 
     public Camera()
     {
-        transform = new Transform(new Vector3(0, -1, 5), new Vector3(0, Math.PI, 0));
+        transform = new Transform(new Vector3(0, -1, 15), new Vector3(0, Math.PI, 0));
     }
 
     //endregion
@@ -117,8 +117,14 @@ public class Camera extends JPanel
 
             for (int i = 0; i < m.getFaces().length; i += 3)
             {
-
-                fillTriangle(output, m, i);
+                try
+                {
+                    fillTriangle(output, m, i);
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
 
             }
         }

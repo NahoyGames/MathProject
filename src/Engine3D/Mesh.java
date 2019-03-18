@@ -114,6 +114,9 @@ public class Mesh
         List<Integer> currentNormalIndices = new ArrayList<>();
         List<Vector3> currentNormals = new ArrayList<>();
 
+        int vertexOffset = 0;
+        int normalOffset = 0;
+
         try (BufferedReader reader = new BufferedReader(new FileReader(src)))
         {
             String line;
@@ -149,6 +152,9 @@ public class Mesh
                             lastMesh.setFaces(temp);
                             lastMesh.setNormalIndices(temp2);
 
+                            vertexOffset += currentVertices.size();
+                            normalOffset += currentNormals.size();
+
                             currentFaces.clear();
                             currentNormalIndices.clear();
                             currentNormals.clear();
@@ -173,17 +179,17 @@ public class Mesh
 
                             if (f.length == 1) // v1 v2 v3
                             {
-                                currentFaces.add(Integer.parseInt(f[0]));
+                                currentFaces.add(Integer.parseInt(f[0]) - vertexOffset);
                             }
                             else if (f.length == 2) // v1//vn1 v2//vn2 v3//vn3
                             {
-                                currentFaces.add(Integer.parseInt(f[0]));
-                                currentNormalIndices.add(Integer.parseInt(f[1]));
+                                currentFaces.add(Integer.parseInt(f[0]) - vertexOffset);
+                                currentNormalIndices.add(Integer.parseInt(f[1]) - normalOffset);
                             }
                             else if (f.length == 3) // v1/vt1/vn1 ...
                             {
-                                currentFaces.add(Integer.parseInt(f[0]));
-                                currentNormalIndices.add(Integer.parseInt(f[2]));
+                                currentFaces.add(Integer.parseInt(f[0]) - vertexOffset);
+                                currentNormalIndices.add(Integer.parseInt(f[2]) - normalOffset);
                             }
                         }
                         break;
