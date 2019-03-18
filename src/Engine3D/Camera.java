@@ -23,6 +23,12 @@ public class Camera extends JPanel
     private BufferedImage render;
 
 
+    // Z-Buffer : A 2-Dimensional array, the size of 'render,' which holds the
+    //            depth for pixels. Used to render only the front-most faces when
+    //            two objects interfere
+    private double[][] zBuffer;
+
+
     // Graphics : Lets us draw our 'render' buffer to the screen
     private Graphics g;
 
@@ -48,6 +54,9 @@ public class Camera extends JPanel
         // Resets the render buffer every frame
         render = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 
+
+        // Resets the Z-Buffer every frame
+        zBuffer = new double[render.getWidth()][render.getHeight()];
 
         // Retrieves the graphic object every frame
         g = getGraphics();
@@ -102,24 +111,15 @@ public class Camera extends JPanel
                 b.y = (b.y * screenScale) + (screenScale / 2);
 
 
-                /*// Here we're rasterizing(converting to pixels) the vertices in screen space
-                try
-                {
-                    // Set the color to this vertex's depth, for a cool effect(no necessary)
-                    float fac = (float) b.z / 10;
-
-                    // Set the pixel's color
-                    render.setRGB((int) b.x, (int) b.y, (int)((1/fac) * 255 * 3));
-
-                }
-                catch (Exception e) { }*/
-
+                // Add our result to the array which contains all the other vertices in screen space
                 output.add(b);
             }
 
             for (int i = 0; i < m.getFaces().length; i += 3)
             {
+
                 fillTriangle(output, m, i);
+
             }
         }
 
@@ -132,7 +132,8 @@ public class Camera extends JPanel
         // it's ~60 frames per second, which is impressive even on 3d engines that make use of the
         // GPU(hardware specifically made for this type of stuff, which I don't use in this program).
         double delta = System.currentTimeMillis() - t;
-        System.out.println(Math.round(1000 / (delta + 1)) + " FPS");
+        System.out.println(Math.round(1000 / (delta)) + " FPS");
+
 
         transform.rotation.x -= 0.001;
         transform.rotation.y -= 0.001;
@@ -153,18 +154,16 @@ public class Camera extends JPanel
         Vector3 c = screenSpaceVertices.get(mesh.getFaces()[index + 2] - 1);
 
 
-        //if (a.z <= -1 && b.z <= -1 && c.z <= -1)
-        //{
-         //   return;
-        //}
-
-        if (
+        // These few lines detect if the triangle is offscreen or behind the camera. If so, there's
+        // no need to even *try* to draw the triangle, as it's simply impossible or unnecessary.
+        if (    (a.z <= 0 || b.z <= 0 || c.z <= 0) ||
                 (a.x < 0 && b.x < 0 && c.x < 0) ||
                 (a.y < 0 && b.y < 0 && c.y < 0) ||
-                (a.x >= render.getWidth() && b.x >= render.getWidth() && c.x >= render.getHeight()) ||
+                (a.x >= render.getWidth() && b.x >= render.getWidth() && c.x >= render.getWidth()) ||
                 (a.y >= render.getHeight() && b.y >= render.getHeight() && c.y >= render.getHeight())
             )
         {
+            // 'Return' cancels this method
             return;
         }
 
@@ -200,6 +199,8 @@ public class Camera extends JPanel
         }
 
 
+        // Calculates the light factor for this face. This uses simple Lambert shading, which is
+        // the dot product of the light source(its direction) and the normal of the face.
         faceNormal.normalize();
         float light = Math.max((float) faceNormal.dotProduct(new Vector3(0.2, 0.5, 0.5).normalize()), 0);
 
@@ -238,12 +239,25 @@ public class Camera extends JPanel
                 // serves as a threshold.
                 if (Math.abs((abp + apc + pbc) - abc) <= 0.1)
                 {
-                    //try
-                    //{
+                    // This line calculates the depth of the pixel. This is fairly inaccurate, but the
+                    // proper method of doing this is requires barycentric coordinates and perspective
+                    // interpolation which is way beyond the scope of this project.
+                    //
+                    // The 'illusion' this method outputs gives satisfactory results
+                    double depth = (a.z + b.z + c.z) / 3;
+
+
+                    // This 'if' statement compares this current pixel's depth and the one it's about to
+                    // over-write's depth. Whichever one is closer to the camera gets to be rendered. This
+                    // results any issues with overlapping faces.
+                    if (zBuffer[x][y] == 0 || zBuffer[x][y] > depth)
+                    {
+
                         // Draw in the pixel!
-                        render.setRGB(x, y, (int)(255 * light));
-                    //}
-                    //catch (Exception e) { }
+                        render.setRGB(x, y, (int) (255 * light));
+                        zBuffer[x][y] = depth;
+
+                    }
                 }
             }
         }
