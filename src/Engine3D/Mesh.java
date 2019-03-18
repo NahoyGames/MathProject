@@ -28,6 +28,9 @@ public class Mesh
     // Stores the indices of the vertices that make up a triangular face on a mesh
     private int[] faces;
 
+    // Stores the indices of the vertex normals used in a triangular face on a mesh
+    private int[] normalIndices;
+
     // Indicates in which direction each vector is facing
     private Vector3[] vNormals;
 
@@ -83,6 +86,16 @@ public class Mesh
         this.vNormals = vNormals;
     }
 
+    public int[] getNormalIndices()
+    {
+        return normalIndices;
+    }
+
+    public void setNormalIndices(int[] normalIndices)
+    {
+        this.normalIndices = normalIndices;
+    }
+
     //endregion
 
 
@@ -98,6 +111,7 @@ public class Mesh
 
         List<Vector3> currentVertices = new ArrayList<>();
         List<Integer> currentFaces = new ArrayList<>();
+        List<Integer> currentNormalIndices = new ArrayList<>();
         List<Vector3> currentNormals = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(src)))
@@ -126,13 +140,17 @@ public class Mesh
                             lastMesh.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
                             lastMesh.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
                             int[] temp = new int[currentFaces.size()];
+                            int[] temp2 = new int[currentNormalIndices.size()];
                             for (int i = 0; i < temp.length; i++)
                             {
                                 temp[i] = currentFaces.get(i);
+                                temp2[i] = currentNormalIndices.get(i);
                             }
                             lastMesh.setFaces(temp);
+                            lastMesh.setNormalIndices(temp2);
 
                             currentFaces.clear();
+                            currentNormalIndices.clear();
                             currentNormals.clear();
                             currentVertices.clear();
                         }
@@ -147,9 +165,25 @@ public class Mesh
                         {
                             String[] f = args[i].replaceAll("//", "/").split("/");
 
-                            for (String s : f)
+                            /*for (int s = 0; s < f.length; s += 2)
                             {
-                                currentFaces.add(Integer.parseInt(s));
+                                currentFaces.add(Integer.parseInt(f[s]));
+                                currentNormalIndices.add(Integer.parseInt(f[s + ((f.length / 3) - 1)]));
+                            }*/
+
+                            if (f.length == 1) // v1 v2 v3
+                            {
+                                currentFaces.add(Integer.parseInt(f[0]));
+                            }
+                            else if (f.length == 2) // v1//vn1 v2//vn2 v3//vn3
+                            {
+                                currentFaces.add(Integer.parseInt(f[0]));
+                                currentNormalIndices.add(Integer.parseInt(f[1]));
+                            }
+                            else if (f.length == 3) // v1/vt1/vn1 ...
+                            {
+                                currentFaces.add(Integer.parseInt(f[0]));
+                                currentNormalIndices.add(Integer.parseInt(f[2]));
                             }
                         }
                         break;
@@ -172,13 +206,17 @@ public class Mesh
             lastMesh.setVertices(currentVertices.toArray(new Vector3[currentVertices.size()]));
             lastMesh.setVertexNormals(currentNormals.toArray(new Vector3[currentNormals.size()]));
             int[] temp = new int[currentFaces.size()];
+            int[] temp2 = new int[currentNormalIndices.size()];
             for (int i = 0; i < temp.length; i++)
             {
                 temp[i] = currentFaces.get(i);
+                temp2[i] = currentNormalIndices.get(i);
             }
             lastMesh.setFaces(temp);
+            lastMesh.setNormalIndices(temp2);
 
             currentFaces.clear();
+            currentNormalIndices.clear();
             currentNormals.clear();
             currentVertices.clear();
 
@@ -188,6 +226,9 @@ public class Mesh
             System.out.println(e);
             e.printStackTrace();
         }
+
+        System.out.println(Arrays.toString(meshes.toArray(new Mesh[meshes.size()])));
+
 
         return meshes.toArray(new Mesh[meshes.size()]);
 
@@ -203,7 +244,8 @@ public class Mesh
     {
         return "\n\n\"" + name + "\" ::: \nVertices : \n" + Arrays.toString(vertices) +
                 "\n Vertex Normals : \n" + Arrays.toString(vNormals) +
-                "\n Faces : \n" + Arrays.toString(faces);
+                "\n Faces : \n" + Arrays.toString(faces) +
+                "\n Normal Indices : \n" + Arrays.toString(normalIndices);
     }
 
     //endregion

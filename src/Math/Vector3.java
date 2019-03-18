@@ -117,6 +117,13 @@ public class Vector3
        return (x * x) + (y * y) + (z * z);
     }
 
+    public Vector3 normalize()
+    {
+       this.multiply(1 / this.magnitude());
+
+       return this;
+    }
+
     // Returns the angle between 2 vectors
     public static double angleBetween(Vector3 a, Vector3 b)
     {
